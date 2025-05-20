@@ -1,5 +1,5 @@
 name: CI
- 
+
 on:
   push:
     branches:
@@ -7,46 +7,58 @@ on:
   pull_request:
     branches:
       - main
-      
+
+permissions:
+  contents: write
+
 env:
   CSV_URL: "MLproject/train_pca.csv"
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE
+      # 1) Checkout & tetap simpan credentials
       - uses: actions/checkout@v3
- 
-      # Setup Python 3.12.7
+        with:
+          persist-credentials: true
+
+      # 2) Setup Python
       - name: Set up Python 3.12.7
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.7"
-      
-      # Check Env Variables
+
+      # 3) Cek ENV
       - name: Check Env
-        run: |
-          echo $CSV_URL
- 
-      # Install mlflow
+        run: echo "CSV_URL is $CSV_URL"
+
+      # 4) Install mlflow
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow
-      
-      # Run as a mlflow project
+
+      # 5) Run MLflow project
       - name: Run mlflow project
+        run: mlflow run MLproject --env-manager=local
+
+      # 6) Setup Git remote pakai GITHUB_TOKEN
+      - name: Setup git auth
         run: |
-          mlflow run MLproject --env-manager=local 
-          
-       # Save models to GitHub Repository
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      # 7) Commit & push mlruns/
       - name: Save mlruns to repo
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          EMAIL:    ${{ secrets.EMAIL }}
         run: |
-           git config --global user.name ${{ secrets.USERNAME }}
-           git config --global user.email ${{ secrets.EMAIl }}
-           git add -f mlruns/
-           git commit -m "Save mlruns from CI run" || true
-           git push origin main
+          git config --global user.name  "${USERNAME}"
+          git config --global user.email "${EMAIL}"
+          git add -f mlruns/
+          # Commit hanya jika ada perubahan
+          git diff --cached --quiet || git commit -m "Save mlruns from CI run"
+          git push origin main
     
