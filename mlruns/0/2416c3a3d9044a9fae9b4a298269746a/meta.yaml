@@ -1,0 +1,15 @@
+artifact_uri: file:///home/runner/work/Latihan-CI/Latihan-CI/mlruns/0/2416c3a3d9044a9fae9b4a298269746a/artifacts
+end_time: 1747717371663
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2416c3a3d9044a9fae9b4a298269746a
+run_name: gifted-foal-447
+run_uuid: 2416c3a3d9044a9fae9b4a298269746a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747717225916
+status: 3
+tags: []
+user_id: runner
